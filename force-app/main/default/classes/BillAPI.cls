@@ -1,39 +1,63 @@
 public with sharing class BillAPI {
     
-    public static void getBills() {
+    public static List<Bill__c> getBills() {
         //start by creating an HttpRequest object and set the endpoint and method.
-
+        HttpRequest req = new HttpRequest();
+        req.setEndpoint('callout:Billing_API');
+        req.setMethod('GET');
 
         //set up an Http object and an HTTPResponse Object and use the .getBody() method here.
-
+        Http http = new Http();
+        HTTPResponse res = http.send(req);
+        //responseBody = res.getBody();
+        System.debug(res.getBody());
+        res = http.send(req);
 
         //Use the following to deserialize the JSON response into a wrapper class:
 
-
         //create a list of bills to insert
-
+        List<Bill__c> lstBill = new List<Bill__c>();
 
         //query for active accounts (Active__c = 'Yes')
-
-
+        List<Account> lstAcct = [SELECT Id, Name, BillingCity FROM Account WHERE Active__c = 'Yes'];
+     
         //create an active account map in the form of Map<String, Id>
-
+        Map<String,Id> acctMap = new Map<String,Id>();
 
         //iterate over the list of active accounts, and use the .put() method of the Map class
         // to insert the account name and Id as the key value pair.
         //https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_methods_system_map.htm
+        for(Account acct: lstAcct){
+            acctMap.put(acct.Name, acct.Id);
+        }
 
-
+        List<BillWrapper> bwList = (List<BillWrapper>)JSON.deserialize(res.getBody(), List<BillWrapper>.class);
         //iterate over the list of BillWrappers, bwList, and create a new bill in each iteration.
         //Match the new bill fields with the properties of the BillWrapper class, using the following for
         //Bill__c.Balance:
         //billToInsert.Balance__c = Decimal.valueOf(bw.balance.replace('$', ''));
         //at the end of the for loop, add the newly created bill to a list of bills to insert
         //remember, DML should not go in for loops!
-
+        if(bwList.size() > 0){
+            for(BillWrapper bw : bwList){
+                Bill__c billToInsert = new Bill__c();
+                billToInsert.Bill_Id__c = bw.billId;
+                billToInsert.Account__c = acctMap.get(bw.accountName);
+                billToInsert.Balance__c = Decimal.valueOf(bw.balance.replace('$', ''));
+                lstBill.add(billToInsert);
+            }
+        }
 
         //finally, insert the new bills list
+        upsert lstBill Bill_Id__c;
 
+        //find by query bill records
+        List <Bill__c> bills = [select Bill_Id__c, Account__c, Balance__c from Bill__c];
+        if(bills.size() > 0)
+            return bills;
+        else {
+            return null;
+        }
     }
 
     //this is what's known as a wrapper class. A wrapper class
@@ -44,7 +68,6 @@ public with sharing class BillAPI {
     //data source. Once we get the body of our HTTP callout, we will use
     //the following line of code to transform the response body (responseBody)
     //into a list of instances of our wrapper class, BillWrapper:
-    //
     //List<BillWrapper> bwList = (List<BillWrapper>)JSON.deserialize(responseBody, List<BillWrapper>.class);
     //
     //once we have a list of BillWrapper objects (bwList), we will iterate over the
