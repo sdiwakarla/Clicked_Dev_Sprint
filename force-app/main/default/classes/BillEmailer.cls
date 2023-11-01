@@ -40,10 +40,10 @@ public with sharing class BillEmailer {
     //this is a method that will allow you to check to see if your code works.
     private static Boolean inspectResults(Messaging.SendEmailResult[] results) {
         Boolean sendResult = true;
-        // sendEmail returns an array of result objects.
-        // Iterate through the list to inspect results. 
+        // sendEmail returns an array of result objects
+        // Iterate through the list to inspect results 
         // In this class, the methods send only one email, 
-        // so we should have only one result.
+        // so we should have only one result
         for (Messaging.SendEmailResult res : results) {
             if (res.isSuccess()) {
                 System.debug('Email sent successfully');

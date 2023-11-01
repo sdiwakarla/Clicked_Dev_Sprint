@@ -21,7 +21,7 @@
     </apex:panelGrid>
 </apex:pageBlock>
 </apex:outputPanel>
-    <!--
+    <!--Comments:
         Build a table showing the Bill Summary (Bill Name, Bill Balance, and Bill Id) here.
         Hint: use apex:pageBlockTable to display this in a table.
     -->

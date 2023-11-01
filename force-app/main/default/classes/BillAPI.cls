@@ -7,9 +7,10 @@ public with sharing class BillAPI {
         req.setMethod('GET');
 
         //set up an Http object and an HTTPResponse Object and use the .getBody() method here.
+        //responseBody = res.getBody();
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        //responseBody = res.getBody();
+        
         System.debug(res.getBody());
         res = http.send(req);
 

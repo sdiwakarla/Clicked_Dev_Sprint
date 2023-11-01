@@ -39,8 +39,7 @@ public with sharing class BillBatch implements Database.Batchable<sObject>, Data
         //corresponding Id of the account Id (key) in a Map<Id, Id> that we will call billMap, using the .put(Id, Id)
         //method of the Map class:
         //https://developer.salesforce.com/docs/atlas.en-us.apexref.meta/apexref/apex_methods_system_map.htm
-        //we will also create a Map<Id, String> called emailMap, where we'll hold the Account Id (key) and account email (value).
-
+        //we will also create a Map<Id, String> called emailMap, where we'll hold the Account Id(key) and account email (value).
 
         for( Account acc: [SELECT Id, Email__c, (SELECT Id FROM Bills__r ORDER BY CreatedDate DESC) FROM Account WHERE Id IN :this.receivesBillByEmail]){
             if(acc.Bills__r.size() > 0){
@@ -48,8 +47,7 @@ public with sharing class BillBatch implements Database.Batchable<sObject>, Data
                 emailMap.put(acc.Id, acc.Email__c);
             }
         }
- 
-         
+    
 
         //The String in the map, which we'll call sendMap,will be the Account.Email__c field result, and the Blob
         //will be the PDF attachment we are sending. We will achieve this by iterating over the keyset for
